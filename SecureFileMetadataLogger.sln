@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureFileMetadataLogger", "SecureFileMetadataLogger\SecureFileMetadataLogger.csproj", "{7A84941B-ED73-458E-812E-B64007985CB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watcher_ConsoleApp", "SecureFileMetadataLogger\Watcher_ConsoleApp.csproj", "{7A84941B-ED73-458E-812E-B64007985CB0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watcher", "WatcherService\Watcher.csproj", "{8478676A-3799-48F2-869E-E134D4C19B4F}"
 EndProject
