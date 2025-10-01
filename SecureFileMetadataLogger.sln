@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watcher_ConsoleApp", "SecureFileMetadataLogger\Watcher_ConsoleApp.csproj", "{7A84941B-ED73-458E-812E-B64007985CB0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watcher", "WatcherService\Watcher.csproj", "{8478676A-3799-48F2-869E-E134D4C19B4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watcher", "SecureFileMetadataLogger\Watcher.csproj", "{7A84941B-ED73-458E-812E-B64007985CB0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{F44A479A-4D72-418C-A43B-D974641B8E2D}"
 EndProject
@@ -19,10 +17,6 @@ Global
 		{7A84941B-ED73-458E-812E-B64007985CB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A84941B-ED73-458E-812E-B64007985CB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A84941B-ED73-458E-812E-B64007985CB0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8478676A-3799-48F2-869E-E134D4C19B4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8478676A-3799-48F2-869E-E134D4C19B4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8478676A-3799-48F2-869E-E134D4C19B4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8478676A-3799-48F2-869E-E134D4C19B4F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F44A479A-4D72-418C-A43B-D974641B8E2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F44A479A-4D72-418C-A43B-D974641B8E2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F44A479A-4D72-418C-A43B-D974641B8E2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
