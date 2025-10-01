@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Watcher
+namespace Common
 {
   public class LogMetaData
   {
