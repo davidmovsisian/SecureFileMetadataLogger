@@ -8,6 +8,9 @@ using Common;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
+using System.Net.Http.Json;
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Watcher_ConsoleApp
 {
@@ -23,7 +26,7 @@ namespace Watcher_ConsoleApp
     private readonly string _loggerUrl = "http://localhost:5001/log";
     private readonly string iss = "watcher-service";
     private readonly string _jwtSecret;
-    private readonly TimeSpan _tokenExpire = TimeSpan.FromSeconds(5);
+    private readonly TimeSpan _tokenExpire = TimeSpan.FromMinutes(5);
 
     public WatcherService(ILogger<WatcherService> logger,
       IHttpClientFactory httpClientFactory,
@@ -116,12 +119,16 @@ namespace Watcher_ConsoleApp
 
         if (response.IsSuccessStatusCode)
         {
-          _logger.LogInformation("Logger accepted {file}", fileInfo.Name);
-          MoveFile(filePath, fileInfo.Name);
-        }
-        else
-        {
-          _logger.LogWarning("Logger rejected {file}, Status: {status}", fileInfo.Name, response.StatusCode);
+          var result = await response.Content.ReadFromJsonAsync<Response>();
+          if (result?.Status == HttpStatusCode.OK)
+          {
+            _logger.LogInformation("Logger accepted {file}", fileInfo.Name);
+            MoveFile(filePath, fileInfo.Name);
+          }
+          else
+          {
+            _logger.LogWarning("Logger rejected {file}, Status: {status}", fileInfo.Name, result?.Status);
+          }
         }
       }
       catch (Exception ex)
