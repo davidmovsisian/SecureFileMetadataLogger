@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Logger.Controllers
 {
-  //[Route("logger")]
   [ApiController]
   public class LoggerController : ControllerBase
   {
@@ -43,7 +42,7 @@ namespace Logger.Controllers
       }
 
       if (string.IsNullOrEmpty(logMetaData.FileName) ||
-        string.IsNullOrEmpty(logMetaData.CreatedAt) ||
+        logMetaData.CreatedAt == null ||
         logMetaData.FileSize == 0 ||
         string.IsNullOrEmpty(logMetaData.Hash))
       {
@@ -55,11 +54,11 @@ namespace Logger.Controllers
       }
 
       //Process Log
-      if (!_loggerService.ProcessLog(logMetaData))
+      if (!await _loggerService.ProcessLog(logMetaData))
         return new Response
         {
           Status = HttpStatusCode.InternalServerError,
-          Message = "Logging failed"
+          Message = "Logging metadata failed"
         };
 
       return new Response

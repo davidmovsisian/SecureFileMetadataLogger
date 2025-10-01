@@ -99,7 +99,7 @@ namespace Watcher_ConsoleApp
       var payload = new LogMetaData
       {
         FileName = fileInfo.Name,
-        CreatedAt = DateTime.UtcNow.ToString(),
+        CreatedAt = DateTime.UtcNow,
         FileSize = fileInfo.Length,
         Hash = GetSHA256Async(filePath)
       };
@@ -107,7 +107,7 @@ namespace Watcher_ConsoleApp
       var jwtTokem = CreateJwtToken();
 
       var httpClient = _httpClientFactory.CreateClient();
-      httpClient.Timeout = TimeSpan.FromSeconds(10);
+      httpClient.Timeout = TimeSpan.FromMinutes(10);
 
       using var request = new HttpRequestMessage(HttpMethod.Post, _loggerUrl);
       request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtTokem);
