@@ -1,5 +1,6 @@
 ﻿using System.Text;
-using Common;
+using Common.DTO;
+using Microsoft.Extensions.Options;
 
 namespace Logger
 {
@@ -8,13 +9,15 @@ namespace Logger
     private readonly ILogger<LoggerService> _logger;
     private readonly IHostEnvironment _hostEnvironment;
     private readonly string _logsDir;
+    private readonly Settings _settings;
     
 
-    public LoggerService(ILogger<LoggerService> logger, IHostEnvironment hostEnvironment)
+    public LoggerService(ILogger<LoggerService> logger, IHostEnvironment hostEnvironment, IOptions<Settings> settings)
     {
       _logger = logger;
       _hostEnvironment = hostEnvironment;
-      _logsDir = Path.Combine(_hostEnvironment.ContentRootPath, "./logs"); ;
+      _settings = settings.Value;
+      _logsDir = Path.Combine(_hostEnvironment.ContentRootPath, _settings.LogsDir);
 
       _logger.LogInformation("Logs directory {logdir}", _logsDir);
 

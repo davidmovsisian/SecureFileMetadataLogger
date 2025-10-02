@@ -2,8 +2,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text;
-using Common;
+using Common.DTO;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,15 +14,20 @@ namespace Logger.Controllers
   public class LoggerController : ControllerBase
   {
     private readonly LoggerService _loggerService;
-    private readonly string iss = "watcher-service";
+    private readonly string _iss;
     private readonly string _jwtSecret;
     private readonly ILogger<LoggerController> _logger;
+    private readonly Settings _settings;
 
-    public LoggerController(LoggerService loggerService, ILogger<LoggerController> logger)
+    public LoggerController(LoggerService loggerService, 
+      ILogger<LoggerController> logger,
+      IOptions<Settings> settings)
     {
-      _loggerService = loggerService;
-      _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
       _logger = logger;
+      _loggerService = loggerService;
+      _settings = settings.Value;
+      _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")?? _settings.DefaualtJWTSecret;
+      _iss = _settings.ISS;
     }
 
     [HttpPost]
@@ -77,7 +83,7 @@ namespace Logger.Controllers
         var parameters = new TokenValidationParameters
         {
           ValidateIssuer = true,
-          ValidIssuer = iss,
+          ValidIssuer = _iss,
           ValidateAudience = false,
           ValidateLifetime = true,
           ClockSkew = TimeSpan.Zero,

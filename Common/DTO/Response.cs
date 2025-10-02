@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Common
+namespace Common.DTO
 {
   public class Response
   {

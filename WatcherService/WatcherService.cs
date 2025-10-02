@@ -4,12 +4,13 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Common;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Net.Http.Json;
 using System.Net;
+using Common.DTO;
+using Microsoft.Extensions.Configuration;
 
 namespace Watcher
 {
@@ -22,22 +23,27 @@ namespace Watcher
 
     private readonly string _watchedDir;
     private readonly string _processedDir;
-    private readonly string _loggerUrl = "http://localhost:5001/log";
-    private readonly string iss = "watcher-service";
+    private readonly string _loggerUrl; //= "http://localhost:5001/log";
+    private readonly string _iss; //= "watcher-service";
     private readonly string _jwtSecret;
     private readonly TimeSpan _tokenExpire = TimeSpan.FromMinutes(5);
+    private readonly Settings _settings;
 
     public WatcherService(ILogger<WatcherService> logger,
       IHttpClientFactory httpClientFactory,
-      IHostEnvironment hostEnvironment)
+      IHostEnvironment hostEnvironment,
+      IConfiguration config)
     {
       _logger = logger;
       _httpClientFactory = httpClientFactory;
       _hostEnvironment = hostEnvironment;
+      _settings = config.GetSection("Settings").Get<Settings>();
 
-      _watchedDir = Path.Combine(_hostEnvironment.ContentRootPath, "./watched");
-      _processedDir = Path.Combine(_hostEnvironment.ContentRootPath, "./processed");
-      _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")?? "supersecretkey123_sasa-Software2015";
+      _watchedDir = Path.Combine(_hostEnvironment.ContentRootPath, _settings.WatchedDir);
+      _processedDir = Path.Combine(_hostEnvironment.ContentRootPath, _settings.ProcessedDir);
+      _iss = _settings.ISS;
+      _loggerUrl = _settings.LoggerUrl;
+      _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? _settings.DefaualtJWTSecret;
 
       Directory.CreateDirectory(_watchedDir);
       Directory.CreateDirectory(_processedDir);
@@ -151,9 +157,9 @@ namespace Watcher
       var now = DateTime.UtcNow;
       var token = new JwtSecurityToken(
 
-        issuer: iss,
+        issuer: _iss,
         audience: null,
-        claims: new[] { new Claim(JwtRegisteredClaimNames.Iss, iss) },
+        claims: new[] { new Claim(JwtRegisteredClaimNames.Iss, _iss) },
         notBefore: now,
         expires: now.Add(_tokenExpire),
         signingCredentials: creds
