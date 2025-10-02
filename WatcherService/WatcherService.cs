@@ -10,9 +10,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Net.Http.Json;
 using System.Net;
-using Microsoft.AspNetCore.Mvc;
 
-namespace Watcher_ConsoleApp
+namespace Watcher
 {
   public class WatcherService : BackgroundService
   {
@@ -38,7 +37,7 @@ namespace Watcher_ConsoleApp
 
       _watchedDir = Path.Combine(_hostEnvironment.ContentRootPath, "./watched");
       _processedDir = Path.Combine(_hostEnvironment.ContentRootPath, "./processed");
-      _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+      _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")?? "supersecretkey123_sasa-Software2015";
 
       Directory.CreateDirectory(_watchedDir);
       Directory.CreateDirectory(_processedDir);
@@ -47,13 +46,9 @@ namespace Watcher_ConsoleApp
     protected override Task ExecuteAsync(CancellationToken ct)
     {
       _logger.LogInformation("Watching at directory{dir}", _watchedDir);
-      _logger.LogInformation("ContentRootPath {contentRoot}", _hostEnvironment.ContentRootPath);
 
       _fileSystemWatcher = new FileSystemWatcher(_watchedDir)
       {
-        //changes to watch for
-        NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite,
-        Filter = "*.*",
         EnableRaisingEvents = true
       };
 
@@ -134,7 +129,7 @@ namespace Watcher_ConsoleApp
       }
       catch (Exception ex)
       {
-        _logger.LogWarning(ex, "Exception diring sending the metadata to logger");
+        _logger.LogWarning(ex, "Exception on sending the metadata to logger");
       }
     }
 
@@ -167,7 +162,7 @@ namespace Watcher_ConsoleApp
       return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private string GetSHA256Async(string filePath)
+    private static string GetSHA256Async(string filePath)
     {
       using var sha = SHA256.Create();
       using var fs = File.OpenRead(filePath);

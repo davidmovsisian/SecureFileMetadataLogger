@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-//using Watcher;
 using Microsoft.Extensions.Hosting;
-using Watcher_ConsoleApp;
+using Watcher;
 
 var host = Host.CreateDefaultBuilder(args)
   .ConfigureServices(services =>
@@ -9,7 +8,5 @@ var host = Host.CreateDefaultBuilder(args)
     services.AddHostedService<WatcherService>();
     services.AddHttpClient();
   });
-
-//host.Build();
 
 await host.RunConsoleAsync();
