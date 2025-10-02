@@ -17,6 +17,8 @@ namespace Logger
       _hostEnvironment = hostEnvironment;
       _logsDir = Path.Combine(_hostEnvironment.ContentRootPath, "./logs"); ;
 
+      _logger.LogInformation("Logs directory {logdir}", _logsDir);
+
       Directory.CreateDirectory(_logsDir);
     }
 
@@ -24,13 +26,13 @@ namespace Logger
     {
       var sb = new StringBuilder();
       var filename = SanitzeFileName(Path.GetFileNameWithoutExtension(logMetaData.FileName));
-      var timeStamp = logMetaData.CreatedAt?.ToString("YYYYMMDDTHHMMSSZ");
+      var timeStamp = logMetaData.CreatedAt?.ToString("yyyyMMddTHHmmssZ");
       var fileName = Path.Combine(_logsDir, $"{filename}-{timeStamp}.txt");
 
       var fileContent =
-        sb.Append("FileName: ").Append($"{logMetaData.FileName}\n")
-        .Append("Size: ").Append($"{logMetaData.FileSize}\n")
-        .Append("Created At: ").Append($"{logMetaData.CreatedAt.ToString()}\n").ToString();
+        sb.Append("FileName: ").Append($"{logMetaData.FileName}{Environment.NewLine}")
+        .Append("Size: ").Append($"{logMetaData.FileSize}{Environment.NewLine}")
+        .Append("Created At: ").Append($"{logMetaData.CreatedAt.ToString()}{Environment.NewLine}").ToString();
 
       try
       {

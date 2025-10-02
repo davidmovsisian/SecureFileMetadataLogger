@@ -47,6 +47,7 @@ namespace Watcher_ConsoleApp
     protected override Task ExecuteAsync(CancellationToken ct)
     {
       _logger.LogInformation("Watching at directory{dir}", _watchedDir);
+      _logger.LogInformation("ContentRootPath {contentRoot}", _hostEnvironment.ContentRootPath);
 
       _fileSystemWatcher = new FileSystemWatcher(_watchedDir)
       {
