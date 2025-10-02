@@ -1,15 +1,18 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Common;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+using System.Net.Http.Json;
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Watcher
+namespace Watcher_ConsoleApp
 {
   public class WatcherService : BackgroundService
   {
@@ -23,10 +26,10 @@ namespace Watcher
     private readonly string _loggerUrl = "http://localhost:5001/log";
     private readonly string iss = "watcher-service";
     private readonly string _jwtSecret;
-    private readonly TimeSpan _tokenExpire = TimeSpan.FromSeconds(5);
+    private readonly TimeSpan _tokenExpire = TimeSpan.FromMinutes(5);
 
-    public WatcherService(ILogger<WatcherService> logger, 
-      IHttpClientFactory httpClientFactory, 
+    public WatcherService(ILogger<WatcherService> logger,
+      IHttpClientFactory httpClientFactory,
       IHostEnvironment hostEnvironment)
     {
       _logger = logger;
@@ -44,9 +47,10 @@ namespace Watcher
     protected override Task ExecuteAsync(CancellationToken ct)
     {
       _logger.LogInformation("Watching at directory{dir}", _watchedDir);
+      _logger.LogInformation("ContentRootPath {contentRoot}", _hostEnvironment.ContentRootPath);
 
       _fileSystemWatcher = new FileSystemWatcher(_watchedDir)
-      { 
+      {
         //changes to watch for
         NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite,
         Filter = "*.*",
@@ -79,7 +83,7 @@ namespace Watcher
             break;
           }
         }
-        catch 
+        catch
         {
           await Task.Delay(100);
         }
@@ -96,7 +100,7 @@ namespace Watcher
       var payload = new LogMetaData
       {
         FileName = fileInfo.Name,
-        CreatedAt = DateTime.UtcNow.ToString(),
+        CreatedAt = DateTime.UtcNow,
         FileSize = fileInfo.Length,
         Hash = GetSHA256Async(filePath)
       };
@@ -104,7 +108,7 @@ namespace Watcher
       var jwtTokem = CreateJwtToken();
 
       var httpClient = _httpClientFactory.CreateClient();
-      httpClient.Timeout = TimeSpan.FromSeconds(10);
+      httpClient.Timeout = TimeSpan.FromMinutes(10);
 
       using var request = new HttpRequestMessage(HttpMethod.Post, _loggerUrl);
       request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtTokem);
@@ -116,15 +120,19 @@ namespace Watcher
 
         if (response.IsSuccessStatusCode)
         {
-          _logger.LogInformation("Logger accepted {file}", fileInfo.Name);
-          MoveFile(filePath, fileInfo.Name);
-        }
-        else
-        {
-          _logger.LogWarning("Logger rejected {file}, Status: {status}", fileInfo.Name, response.StatusCode);
+          var result = await response.Content.ReadFromJsonAsync<Response>();
+          if (result?.Status == HttpStatusCode.OK)
+          {
+            _logger.LogInformation("Logger accepted {file}", fileInfo.Name);
+            MoveFile(filePath, fileInfo.Name);
+          }
+          else
+          {
+            _logger.LogWarning("Logger rejected {file}, Status: {status}", fileInfo.Name, result?.Status);
+          }
         }
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         _logger.LogWarning(ex, "Exception diring sending the metadata to logger");
       }
@@ -147,10 +155,10 @@ namespace Watcher
 
       var now = DateTime.UtcNow;
       var token = new JwtSecurityToken(
-      
+
         issuer: iss,
         audience: null,
-        claims: new[] {new Claim (JwtRegisteredClaimNames.Iss, iss) },
+        claims: new[] { new Claim(JwtRegisteredClaimNames.Iss, iss) },
         notBefore: now,
         expires: now.Add(_tokenExpire),
         signingCredentials: creds
