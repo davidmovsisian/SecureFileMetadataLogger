@@ -23,8 +23,8 @@ namespace Watcher
 
     private readonly string _watchedDir;
     private readonly string _processedDir;
-    private readonly string _loggerUrl; //= "http://localhost:5001/log";
-    private readonly string _iss; //= "watcher-service";
+    private readonly string _loggerUrl;
+    private readonly string _iss;
     private readonly string _jwtSecret;
     private readonly TimeSpan _tokenExpire = TimeSpan.FromMinutes(5);
     private readonly Settings _settings;
@@ -42,7 +42,7 @@ namespace Watcher
       _watchedDir = Path.Combine(_hostEnvironment.ContentRootPath, _settings.WatchedDir);
       _processedDir = Path.Combine(_hostEnvironment.ContentRootPath, _settings.ProcessedDir);
       _iss = _settings.ISS;
-      _loggerUrl = _settings.LoggerUrl;
+      _loggerUrl = Environment.GetEnvironmentVariable("LOGGER_URL") ?? _settings.LoggerUrl;
       _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? _settings.DefaualtJWTSecret;
 
       Directory.CreateDirectory(_watchedDir);
@@ -55,7 +55,8 @@ namespace Watcher
 
       _fileSystemWatcher = new FileSystemWatcher(_watchedDir)
       {
-        EnableRaisingEvents = true
+        EnableRaisingEvents = true,
+        NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite
       };
 
       _fileSystemWatcher.Created += async (sender, args) =>
@@ -63,6 +64,12 @@ namespace Watcher
         await Task.Delay(500);//delay to make sure that file is ready 
         _ = Task.Run(() => SendMetadata(args.FullPath));
       };
+
+   
+      //_fileSystemWatcher.Created +=  (sender, args) => _logger.LogInformation("Created Event");
+      //_fileSystemWatcher.Changed += (sender, args) => _logger.LogInformation("Changed Event");
+      //_fileSystemWatcher.Deleted += (sender, args) => _logger.LogInformation("Deleted Event");
+      //_fileSystemWatcher.Renamed += (sender, args) => _logger.LogInformation("Renamed Event");
 
       return Task.CompletedTask;
     }

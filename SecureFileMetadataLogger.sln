@@ -7,7 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logger", "Logger\Logger.csproj", "{A25F24E4-B647-47D2-AFE6-68B48B0C9258}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watcher", "WatcherService\Watcher.csproj", "{63B38615-E44A-DCCA-FFCD-6B0DB46FC352}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watcher", "Watcher\Watcher.csproj", "{B6B5C93C-DF34-C696-D6B1-D8385B18BBD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +28,10 @@ Global
 		{A25F24E4-B647-47D2-AFE6-68B48B0C9258}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A25F24E4-B647-47D2-AFE6-68B48B0C9258}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A25F24E4-B647-47D2-AFE6-68B48B0C9258}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63B38615-E44A-DCCA-FFCD-6B0DB46FC352}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63B38615-E44A-DCCA-FFCD-6B0DB46FC352}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63B38615-E44A-DCCA-FFCD-6B0DB46FC352}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63B38615-E44A-DCCA-FFCD-6B0DB46FC352}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6B5C93C-DF34-C696-D6B1-D8385B18BBD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6B5C93C-DF34-C696-D6B1-D8385B18BBD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6B5C93C-DF34-C696-D6B1-D8385B18BBD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6B5C93C-DF34-C696-D6B1-D8385B18BBD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

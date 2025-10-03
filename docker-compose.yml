@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  logger:
+    build:
+      context: ./Logger
+    container_name: logger
+    ports:
+      - "8080:8080"
+    networks:
+      - appnet
+    environment:
+     JWT_SECRET: "supersecretkey123_sasa-Software2015"
+  
+  watcher:
+    build:
+      context: ./Watcher
+    container_name: watcher
+    depends_on:
+      - logger
+    networks:
+      - appnet
+    environment:
+     JWT_SECRET: "supersecretkey123_sasa-Software2015"
+     LOGGER_URL: "http://logger:8080/log"
+
+networks:
+  appnet:
+    driver: bridge
+  

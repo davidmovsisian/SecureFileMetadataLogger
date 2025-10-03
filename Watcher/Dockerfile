@@ -10,11 +10,11 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["WatcherService/Watcher.csproj", "WatcherService/"]
+COPY ["Watcher/Watcher.csproj", "Watcher/"]
 COPY ["Common/Common.csproj", "Common/"]
-RUN dotnet restore "./WatcherService/Watcher.csproj"
+RUN dotnet restore "./Watcher/Watcher.csproj"
 COPY . .
-WORKDIR "/src/WatcherService"
+WORKDIR "/src/Watcher"
 RUN dotnet build "./Watcher.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
