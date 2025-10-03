@@ -3,7 +3,8 @@ version: "3.9"
 services:
   logger:
     build:
-      context: ./Logger
+      context: .
+      dockerfile: Logger/Dockerfile
     container_name: logger
     ports:
       - "8080:8080"
@@ -14,7 +15,8 @@ services:
   
   watcher:
     build:
-      context: ./Watcher
+      context: .
+      dockerfile: Watcher/Dockerfile
     container_name: watcher
     depends_on:
       - logger
