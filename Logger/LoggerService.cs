@@ -29,7 +29,7 @@ namespace Logger
       var sb = new StringBuilder();
       var filename = SanitzeFileName(Path.GetFileNameWithoutExtension(logMetaData.FileName));
       var timeStamp = logMetaData.CreatedAt?.ToString("yyyyMMddTHHmmssZ");
-      var fileName = Path.Combine(_logsDir, $"{filename}-{timeStamp}.txt");
+      var logFileName = Path.Combine(_logsDir, $"{filename}-{timeStamp}.txt");
 
       var fileContent =
         sb.Append("FileName: ").Append($"{logMetaData.FileName}{Environment.NewLine}")
@@ -38,12 +38,12 @@ namespace Logger
 
       try
       {
-        await File.WriteAllTextAsync(fileName, fileContent);
-        _logger.LogInformation("Log file {filename} created", fileName);
+        await File.WriteAllTextAsync(logFileName, fileContent);
+        _logger.LogInformation("Log file {filename} created", logFileName);
       }
       catch(Exception ex)
       {
-        _logger.LogError(ex, "Failed to write {fileName}", fileName);
+        _logger.LogError(ex, "Failed to write {fileName}", logFileName);
         return false;
       }
 

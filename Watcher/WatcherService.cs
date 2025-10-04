@@ -65,12 +65,6 @@ namespace Watcher
         _ = Task.Run(() => SendMetadata(args.FullPath));
       };
 
-   
-      //_fileSystemWatcher.Created +=  (sender, args) => _logger.LogInformation("Created Event");
-      //_fileSystemWatcher.Changed += (sender, args) => _logger.LogInformation("Changed Event");
-      //_fileSystemWatcher.Deleted += (sender, args) => _logger.LogInformation("Deleted Event");
-      //_fileSystemWatcher.Renamed += (sender, args) => _logger.LogInformation("Renamed Event");
-
       return Task.CompletedTask;
     }
 
@@ -93,7 +87,7 @@ namespace Watcher
         }
         catch
         {
-          await Task.Delay(100);
+          await Task.Delay(500);
         }
       }
 
@@ -116,7 +110,7 @@ namespace Watcher
       var jwtTokem = CreateJwtToken();
 
       var httpClient = _httpClientFactory.CreateClient();
-      httpClient.Timeout = TimeSpan.FromMinutes(10);
+      //httpClient.Timeout = TimeSpan.FromMinutes(10);
 
       using var request = new HttpRequestMessage(HttpMethod.Post, _loggerUrl);
       request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtTokem);
