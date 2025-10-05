@@ -11,6 +11,7 @@ using System.Net.Http.Json;
 using System.Net;
 using Common.DTO;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
 namespace Watcher
 {
@@ -27,7 +28,8 @@ namespace Watcher
     private readonly string _iss;
     private readonly string _jwtSecret;
     private readonly TimeSpan _tokenExpire = TimeSpan.FromMinutes(5);
-    private readonly Settings _settings;
+
+    private readonly HashSet<string> _watchedFiles = new();
 
     public WatcherService(ILogger<WatcherService> logger,
       IHttpClientFactory httpClientFactory,
@@ -37,13 +39,13 @@ namespace Watcher
       _logger = logger;
       _httpClientFactory = httpClientFactory;
       _hostEnvironment = hostEnvironment;
-      _settings = config.GetSection("Settings").Get<Settings>();
+      var settings = config.GetSection("Settings").Get<Settings>();
 
-      _watchedDir = Path.Combine(_hostEnvironment.ContentRootPath, _settings.WatchedDir);
-      _processedDir = Path.Combine(_hostEnvironment.ContentRootPath, _settings.ProcessedDir);
-      _iss = _settings.ISS;
-      _loggerUrl = Environment.GetEnvironmentVariable("LOGGER_URL") ?? _settings.LoggerUrl;
-      _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? _settings.DefaualtJWTSecret;
+      _watchedDir = Path.Combine(_hostEnvironment.ContentRootPath, settings.WatchedDir);
+      _processedDir = Path.Combine(_hostEnvironment.ContentRootPath, settings.ProcessedDir);
+      _iss = settings.ISS;
+      _loggerUrl = Environment.GetEnvironmentVariable("LOGGER_URL") ?? settings.LoggerUrl;
+      _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? settings.DefaualtJWTSecret;
 
       Directory.CreateDirectory(_watchedDir);
       Directory.CreateDirectory(_processedDir);
@@ -56,13 +58,20 @@ namespace Watcher
       _fileSystemWatcher = new FileSystemWatcher(_watchedDir)
       {
         EnableRaisingEvents = true,
-        NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite
+        NotifyFilter = NotifyFilters.FileName
       };
 
-      _fileSystemWatcher.Created += async (sender, args) =>
+      _fileSystemWatcher.Created += (sender, args) =>
       {
-        await Task.Delay(500);//delay to make sure that file is ready 
-        _ = Task.Run(() => SendMetadata(args.FullPath));
+        if (_watchedFiles.Contains(args.FullPath))
+          return;
+
+        _ = Task.Run(async () =>
+        {
+          _watchedFiles.Add(args.FullPath);
+          await SendMetadata(args.FullPath);
+          _watchedFiles.Remove(args.FullPath);
+        });
       };
 
       return Task.CompletedTask;
@@ -70,25 +79,24 @@ namespace Watcher
 
     private async Task SendMetadata(string filePath)
     {
-      int maxretry = 10;
       bool isReady = false;
 
-      //check if file is ready
-      for (int i = 0; i < maxretry; i++)
+      var stopwatch = new Stopwatch();
+      stopwatch.Start();
+
+      DateTime lastWrite = File.GetLastWriteTime(filePath);
+
+      //wait untill file is ready, not changed
+      while (stopwatch.Elapsed.TotalSeconds < 100)
       {
-        try
+        await Task.Delay(500);
+        var newWrite = File.GetLastWriteTime(filePath);
+        if (lastWrite == newWrite)
         {
-          using var fs = File.OpenRead(filePath);
-          if (fs.Length > 0)
-          {
-            isReady = true;
-            break;
-          }
+          isReady = true;
+          break;
         }
-        catch
-        {
-          await Task.Delay(500);
-        }
+        lastWrite = newWrite;
       }
 
       if (!isReady)
@@ -110,7 +118,6 @@ namespace Watcher
       var jwtTokem = CreateJwtToken();
 
       var httpClient = _httpClientFactory.CreateClient();
-      //httpClient.Timeout = TimeSpan.FromMinutes(10);
 
       using var request = new HttpRequestMessage(HttpMethod.Post, _loggerUrl);
       request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtTokem);

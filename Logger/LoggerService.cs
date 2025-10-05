@@ -38,7 +38,6 @@ namespace Logger
 
       try
       {
-        File.Create(logFileName);
         await File.WriteAllTextAsync(logFileName, fileContent);
         _logger.LogInformation("Log file {filename} created", logFileName);
       }
