@@ -30,6 +30,7 @@ namespace Watcher
     private readonly TimeSpan _tokenExpire = TimeSpan.FromMinutes(5);
 
     private readonly HashSet<string> _watchedFiles = new();
+    private readonly object _lock = new ();
 
     public WatcherService(ILogger<WatcherService> logger,
       IHttpClientFactory httpClientFactory,
@@ -63,14 +64,21 @@ namespace Watcher
 
       _fileSystemWatcher.Created += (sender, args) =>
       {
-        if (_watchedFiles.Contains(args.FullPath))
-          return;
+        lock (_lock)
+        {
+          if (_watchedFiles.Contains(args.FullPath))
+            return;
+
+          _watchedFiles.Add(args.FullPath);
+        }
 
         _ = Task.Run(async () =>
         {
-          _watchedFiles.Add(args.FullPath);
           await SendMetadata(args.FullPath);
-          _watchedFiles.Remove(args.FullPath);
+          lock (_lock)
+          {
+            _watchedFiles.Remove(args.FullPath);
+          }
         });
       };
 
