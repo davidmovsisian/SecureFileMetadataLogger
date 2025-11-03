@@ -135,7 +135,12 @@ namespace Watcher
       {
         var response = await httpClient.SendAsync(request);
 
-        if (response.IsSuccessStatusCode)
+        if(!response.IsSuccessStatusCode)
+        {
+          string errorMessage = await response.Content.ReadAsStringAsync();
+          _logger.LogError(errorMessage);
+        }
+        else
         {
           var result = await response.Content.ReadFromJsonAsync<Response>();
           if (result?.Status == HttpStatusCode.OK)
